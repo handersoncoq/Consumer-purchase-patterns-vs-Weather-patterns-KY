@@ -1,0 +1,7 @@
+---
+title: "Data Cleaning For Weather Datasets"
+author: "Handerson Coq"
+date: '2022-05-11'
+output: html_document
+---
+

@@ -1,0 +1,180 @@
+---
+title: "Data Cleaning For Monthly Retail Sales Datasets"
+author: "Handerson Coq"
+date: '2022-05-09'
+output: html_document
+---
+
+### Context
+
+This project is for the Google Analytics Capstone. It is aimed at evaluating the impact of weather patterns on consumer purchase patterns in Kentucky. We will be using retail sales data retrieved from the U.S. Bureau of Labor Statistics (BLS) and weather data from the National Oceanic and Atmospheric Administration (NOAA). 
+
+The purpose of this script is to perform data cleaning on the monthly retail sales and put all categories into a single dataframe.
+
+### Installing required packages
+
+```{r tidyverse}
+install.packages("tidyverse") # for data import and wrangling
+library(tidyverse)
+```
+```{r lubridate}
+install.packages("lubridate") # for date functions
+library(lubridate)
+```
+
+### Loading useful packages from the tydiverse
+
+```{r Packages for data manipulation}
+library(tidyr) # for data cleaning
+library(dplyr) # for data transformation & exploration
+```
+
+### Loading retail sales data
+
+```{r Retail sales data}
+food_beverage <- read_csv("Food_Beverage.csv")
+clothing <- read_csv("Clothing.csv")
+furniture <- read_csv("Health_PersonalCare.csv")
+personal_care <- read_csv("Health_PersonalCare.csv")
+gasoline_stations <- read_csv("Gasoline_stations.csv")
+```
+
+### Viewing retail sales data for all categories
+
+```{r View Sales data}
+View(food_beverage)
+View(clothing)
+View(furniture)
+View(personal_care)
+View(gasoline_stations)
+```
+
+### Begin data cleaning
+
+- Renaming the "MSRSKY###" columns to "prct_change" which stands for percent change from year ago
+
+```{r Renaming columns}
+foodbev_sales <- rename(food_beverage, prct_change = MSRSKY445)
+
+clothing_sales <- rename(clothing, prct_change = MSRSKY448)
+
+furniture_sales <- rename(furniture, prct_change = MSRSKY446)
+
+personalcare_sales <- rename(personal_care, prct_change = MSRSKY446)
+
+gasstations_sales <- rename(gasoline_stations, prct_change = MSRSKY447)
+```
+
+- Making columns format consistent
+
+```{r Format consistent}
+foodbev <- rename_with(foodbev_sales, tolower)
+clothes <- rename_with(clothing_sales, tolower)
+furnitures <- rename_with(furniture_sales, tolower)
+personalcare <- rename_with(personalcare_sales, tolower)
+gasstations <- rename_with(gasstations_sales, tolower)
+```
+
+- Changing the date format to month name format
+
+```{r Date to month}
+foodbev_month <- months(as.Date(foodbev$date))
+clothes_month <- months(as.Date(clothes$date))
+furniture_month <- months(as.Date(furnitures$date))
+personalcare_month <- months(as.Date(personalcare$date))
+gasstations_month <- months(as.Date(gasstations$date))
+```
+
+- Putting each category in its data frame
+
+```{r Data frames}
+foodbev_retail <- data.frame(foodbev_month, foodbev$prct_change)
+
+clothing_retail <- data.frame(clothes_month, clothes$prct_change)
+
+furniture_retail <- data.frame(furniture_month, furnitures$prct_change)
+
+personalcare_retail <- data.frame(personalcare_month, personalcare$prct_change)
+
+gasstations_retail <- data.frame(gasstations_month, gasstations$prct_change)
+```
+
+- Renaming the columns again
+
+```{r Renaming again}
+foodbev_prct <- rename(foodbev_retail, prct_change = foodbev.prct_change, month = foodbev_month)
+
+clothing_prct <- rename(clothing_retail, prct_change = clothes.prct_change, month = clothes_month)
+
+furniture_prct <- rename(furniture_retail, prct_change = furnitures.prct_change, month = furniture_month)
+
+personalcare_prct <- rename(personalcare_retail, prct_change = personalcare.prct_change, month = personalcare_month)
+
+gasstations_prct <- rename(gasstations_retail, prct_change = gasstations.prct_change, month = gasstations_month)
+```
+
+- Double checking
+
+```{r Checking}
+head(foodbev_prct)
+head(clothing_prct)
+head(furniture_prct)
+head(personalcare_prct)
+head(gasstations_prct)
+```
+
+- Putting all the retail sales data to a single dataframe
+
+```{r Retail sales dataframe}
+retail_sales_df <- data.frame(
+  month = foodbev_prct$month, 
+  food_beverage = foodbev_prct$prct_change,
+  clothing = clothing_prct$prct_change,
+  furnitures = furniture_prct$prct_change,
+  personal_care = personalcare_prct$prct_change,
+  gasoline_stations = gasstations_prct$prct_change
+  )
+```
+
+- The missing values in the percent change data are represented as ".", which makes R assign char as the datatype
+- Change the missing values to NA
+
+```{r Installing naniar}
+install.packages("naniar") # contains the needed function
+library(naniar)
+```
+```{r Missing values to NA}
+retail_sales <- retail_sales_df %>% 
+  replace_with_na(replace = list(food_beverage = ".", clothing = ".", furnitures = ".", personal_care = ".", gasoline_stations = "."))
+```
+
+- Still, datatypes for food_beverage and clothing need to be changed to numeric
+
+```{r Convert to numeric}
+foodbev_num <- as.numeric(as.character(retail_sales$food_beverage))
+clothing_num <- as.numeric(as.character(retail_sales$clothing))
+```
+
+- Finally, the clean retail sales data in one dataframe
+
+```{r}
+retail_sales_clean <- data.frame(
+  month = retail_sales$month, 
+  food_beverage = foodbev_num, 
+  clothing = clothing_num,
+  furnitures = retail_sales$furnitures,
+  personal_care = retail_sales$personal_care,
+  gasoline_stations = retail_sales$gasoline_stations
+  )
+```
+
+- Examine final dataframe
+
+```{r Last check}
+View(retail_sales_clean)
+str(retail_sales_clean)
+colnames(retail_sales_clean)
+```
+
+
+### End of data cleaning for monthly retail sales datasets

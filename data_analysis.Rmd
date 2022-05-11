@@ -1,0 +1,6 @@
+---
+title: 'Data Analysis: Weather patterns vs Consumer Purchase Patterns'
+author: "Handerson Coq"
+date: '2022-05-11'
+output: html_document
+---
