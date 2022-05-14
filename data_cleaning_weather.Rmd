@@ -5,3 +5,144 @@ date: '2022-05-11'
 output: html_document
 ---
 
+### Context
+
+This project is for the Google Analytics Capstone. It is aimed at evaluating the impact of weather patterns on consumer purchase patterns in Kentucky. We will be using retail sales data retrieved from the U.S. Bureau of Labor Statistics (BLS) and weather data from the National Oceanic and Atmospheric Administration (NOAA). 
+
+The purpose of this script is to perform data cleaning on the monthly weather datasets and put all three elements into a single dataframe.
+
+### Installing required packages
+
+```{r tidyverse}
+install.packages("tidyverse") # for data import and wrangling
+library(tidyverse)
+```
+```{r lubridate}
+install.packages("lubridate") # for date functions
+library(lubridate)
+```
+
+### Loading useful packages from the tydiverse
+
+```{r Packages for data manipulation}
+library(tidyr) # for data cleaning
+library(dplyr) # for data transformation & exploration
+```
+
+### Loading weather data
+
+```{r Weather data}
+temp <- read_csv("KY_avg_temp.csv")
+precip <- read_csv("KY_avg_precip.csv")
+
+library(readxl)
+snow <- read_excel("KY_avg_snowfall.xlsx")
+```
+
+### Viewing weather data for all elements
+
+```{r View weather data}
+View(temp)
+View(precip)
+View(snow)
+```
+
+### Begin data cleaning
+
+1. Cleaning temp
+
+  + Remove the first 4 rows, which have info about the data
+  + Also, remove the 3rd column, which has anomalies that we won't use
+
+```{r Removing first 4 rows and 3rd column: temp}
+new_temp <- temp[-c(1, 2, 3, 4), -3]
+```
+
+  + Rename the columns, which currently have Kentucky and Average Temperature
+
+```{r Renaming columns: temp }
+colnames(new_temp) # take a look at the current column names
+
+avg_temp <- new_temp %>% 
+  rename(date = Kentucky, avgtemp = `Average Temperature`)
+
+colnames(avg_temp) # take a look at the column names now
+```
+
+  + Changing the columns format from strings to month names for date, and string to numeric for avgtemp
+  + But first, the current records in the date column only contain the year and the month together
+  + To retrieve the month names, we will temporarily add a "day" number (01) using paste0
+  + We will also convert it to date format
+
+```{r Add 01 to date and convert tp date: temp}
+date_normal_temp <- ymd(paste0(avg_temp$date, "01"))
+```
+```{r Date to month, strg to numeric: temp}
+month_avg_temp <- data.frame(month = months(date_normal_temp), avgtemp = as.numeric(avg_temp$avgtemp))
+```
+
+2. Cleaning precip
+
+  + Remove first 4 rows
+  
+```{r Removing first 4 rows: precip}
+new_precip <- precip[-c(1, 2, 3, 4), ]
+```
+
+  + Renaming columns
+  
+```{r Renaming columns: precip}
+colnames(new_precip)
+
+avg_precip <- new_precip %>% 
+  rename(date = Kentucky, avgprecip = Precipitation)
+
+colnames(avg_precip)
+```
+
+  + The current avgprecip column contains both precipitation values and anomalies separated by a comma.
+  + We will split this column and get rid of the anomalies because we won't need them.
+  
+```{r Split columns: precip}
+avg_precip_split <- avg_precip %>% 
+  separate(avgprecip, c("avgprecip", NA), sep = ",")
+```
+
+  + Changing the columns format from strings to month names for date, and string to numeric for avgprecip
+
+```{r Str to month, string to numeric: precip}
+date_normal_precip <- ymd(paste0(avg_temp$date, "01"))
+
+month_avg_precip <- data.frame(month = months(date_normal_precip), avgprecip = as.numeric(avg_precip_split$avgprecip))
+```
+
+3. Cleaning snow
+
+  + The snow dataset is different from the other two datasets
+  + We will remove the Year column,
+  + Rename the columns,
+  + And convert from strg to numeric for the avgsnow column
+  
+```{r Removing Year: snow}
+new_snow <- snow[ , -1]
+```
+```{r Renaming columns: snow}
+avg_snow <- new_snow %>% 
+  rename(month = Month, avgsnow = Amount)
+```
+```{r Str to numeric: snow}
+month_avg_snow <- data.frame(month = avg_snow$month, avgsnow = as.numeric(avg_snow$avgsnow))
+```
+
+### Putting all three datasets to a single dataframe
+
+```{r}
+weather_clean <- data.frame(month = month_avg_temp$month, temperature = month_avg_temp$avgtemp, precipitation = month_avg_precip$avgprecip, snowfall = month_avg_snow$avgsnow)
+```
+
+- Examine final dataframe
+
+```{r Last check}
+View(weather_clean)
+str(weather_clean)
+colnames(weather_clean)
