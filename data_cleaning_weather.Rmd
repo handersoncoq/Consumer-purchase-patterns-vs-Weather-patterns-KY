@@ -136,7 +136,7 @@ month_avg_snow <- data.frame(month = avg_snow$month, avgsnow = as.numeric(avg_sn
 
 ### Putting all three datasets to a single dataframe
 
-```{r}
+```{r Final weather dataframe}
 weather_clean <- data.frame(month = month_avg_temp$month, temperature = month_avg_temp$avgtemp, precipitation = month_avg_precip$avgprecip, snowfall = month_avg_snow$avgsnow)
 ```
 
@@ -146,3 +146,6 @@ weather_clean <- data.frame(month = month_avg_temp$month, temperature = month_av
 View(weather_clean)
 str(weather_clean)
 colnames(weather_clean)
+```
+
+### End of data cleaning for monthly weather datasets

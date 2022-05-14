@@ -157,7 +157,7 @@ clothing_num <- as.numeric(as.character(retail_sales$clothing))
 
 - Finally, the clean retail sales data in one dataframe
 
-```{r}
+```{r Final retail sales dataframe}
 retail_sales_clean <- data.frame(
   month = retail_sales$month, 
   food_beverage = foodbev_num, 
