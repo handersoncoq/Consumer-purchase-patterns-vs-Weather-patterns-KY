@@ -54,85 +54,51 @@ View(gasoline_stations)
 - Renaming the "MSRSKY###" columns to "prct_change" which stands for percent change from year ago
 
 ```{r Renaming columns}
-foodbev_sales <- rename(food_beverage, prct_change = MSRSKY445)
+foodbev_rename <- rename(food_beverage, prct_change = MSRSKY445)
 
-clothing_sales <- rename(clothing, prct_change = MSRSKY448)
+clothing_rename <- rename(clothing, prct_change = MSRSKY448)
 
-furniture_sales <- rename(furniture, prct_change = MSRSKY446)
+furniture_rename <- rename(furniture, prct_change = MSRSKY446)
 
-personalcare_sales <- rename(personal_care, prct_change = MSRSKY446)
+personalcare_rename <- rename(personal_care, prct_change = MSRSKY446)
 
-gasstations_sales <- rename(gasoline_stations, prct_change = MSRSKY447)
+gasstations_rename <- rename(gasoline_stations, prct_change = MSRSKY447)
 ```
 
 - Making columns format consistent
 
 ```{r Format consistent}
-foodbev <- rename_with(foodbev_sales, tolower)
-clothes <- rename_with(clothing_sales, tolower)
-furnitures <- rename_with(furniture_sales, tolower)
-personalcare <- rename_with(personalcare_sales, tolower)
-gasstations <- rename_with(gasstations_sales, tolower)
+foodbev <- rename_with(foodbev_rename, tolower)
+clothes <- rename_with(clothing_rename, tolower)
+home_furniture <- rename_with(furniture_rename, tolower)
+personalcare <- rename_with(personalcare_rename, tolower)
+gasstations <- rename_with(gasstations_rename, tolower)
 ```
 
-- Changing the date format to month name format
-
-```{r Date to month}
-foodbev_month <- months(as.Date(foodbev$date))
-clothes_month <- months(as.Date(clothes$date))
-furniture_month <- months(as.Date(furnitures$date))
-personalcare_month <- months(as.Date(personalcare$date))
-gasstations_month <- months(as.Date(gasstations$date))
-```
-
-- Putting each category in its data frame
+- Putting each category in its dataframe
 
 ```{r Data frames}
-foodbev_retail <- data.frame(foodbev_month, foodbev$prct_change)
+foodbev_df <- data.frame(date = foodbev$date, prct_change = foodbev$prct_change)
 
-clothing_retail <- data.frame(clothes_month, clothes$prct_change)
+clothing_df <- data.frame(date = clothes$date, prct_change = clothes$prct_change)
 
-furniture_retail <- data.frame(furniture_month, furnitures$prct_change)
+furniture_df <- data.frame(date = home_furniture$date, prct_change = home_furniture$prct_change)
 
-personalcare_retail <- data.frame(personalcare_month, personalcare$prct_change)
+personalcare_df <- data.frame(date = personalcare$date, prct_change = personalcare$prct_change)
 
-gasstations_retail <- data.frame(gasstations_month, gasstations$prct_change)
-```
-
-- Renaming the columns again
-
-```{r Renaming again}
-foodbev_prct <- rename(foodbev_retail, prct_change = foodbev.prct_change, month = foodbev_month)
-
-clothing_prct <- rename(clothing_retail, prct_change = clothes.prct_change, month = clothes_month)
-
-furniture_prct <- rename(furniture_retail, prct_change = furnitures.prct_change, month = furniture_month)
-
-personalcare_prct <- rename(personalcare_retail, prct_change = personalcare.prct_change, month = personalcare_month)
-
-gasstations_prct <- rename(gasstations_retail, prct_change = gasstations.prct_change, month = gasstations_month)
-```
-
-- Double checking
-
-```{r Checking}
-head(foodbev_prct)
-head(clothing_prct)
-head(furniture_prct)
-head(personalcare_prct)
-head(gasstations_prct)
+gasstations_df <- data.frame(date = gasstations$date, prct_change = gasstations$prct_change)
 ```
 
 - Putting all the retail sales data to a single dataframe
 
 ```{r Retail sales dataframe}
 retail_sales_df <- data.frame(
-  month = foodbev_prct$month, 
-  food_beverage = foodbev_prct$prct_change,
-  clothing = clothing_prct$prct_change,
-  furnitures = furniture_prct$prct_change,
-  personal_care = personalcare_prct$prct_change,
-  gasoline_stations = gasstations_prct$prct_change
+  date = foodbev_df$date, 
+  food_beverage = foodbev_df$prct_change,
+  clothing = clothing_df$prct_change,
+  furnitures = furniture_df$prct_change,
+  personal_care = personalcare_df$prct_change,
+  gasoline_stations = gasstations_df$prct_change
   )
 ```
 
@@ -159,7 +125,7 @@ clothing_num <- as.numeric(as.character(retail_sales$clothing))
 
 ```{r Final retail sales dataframe}
 retail_sales_clean <- data.frame(
-  month = retail_sales$month, 
+  date = retail_sales$date, 
   food_beverage = foodbev_num, 
   clothing = clothing_num,
   furnitures = retail_sales$furnitures,

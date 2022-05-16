@@ -63,22 +63,20 @@ new_temp <- temp[-c(1, 2, 3, 4), -3]
 ```{r Renaming columns: temp }
 colnames(new_temp) # take a look at the current column names
 
-avg_temp <- new_temp %>% 
+temp_rename <- new_temp %>% 
   rename(date = Kentucky, avgtemp = `Average Temperature`)
 
-colnames(avg_temp) # take a look at the column names now
+colnames(temp_rename) # take a look at the column names now
 ```
 
-  + Changing the columns format from strings to month names for date, and string to numeric for avgtemp
-  + But first, the current records in the date column only contain the year and the month together
-  + To retrieve the month names, we will temporarily add a "day" number (01) using paste0
-  + We will also convert it to date format
+  + To get a consistent date format, we will temporarily add a "day" number (01) using paste0 and convert the datatype tp date
+  + We will also convert the datatype in the avgtemp column from str to numeric
 
-```{r Add 01 to date and convert tp date: temp}
-date_normal_temp <- ymd(paste0(avg_temp$date, "01"))
+```{r Add 01 to date and convert to date: temp}
+date_normal_temp <- ymd(paste0(temp_rename$date, "01"))
 ```
-```{r Date to month, strg to numeric: temp}
-month_avg_temp <- data.frame(month = months(date_normal_temp), avgtemp = as.numeric(avg_temp$avgtemp))
+```{r Strg to numeric: temp}
+temp_clean <- data.frame(date = date_normal_temp, avgtemp = as.numeric(temp_rename$avgtemp))
 ```
 
 2. Cleaning precip
@@ -94,26 +92,26 @@ new_precip <- precip[-c(1, 2, 3, 4), ]
 ```{r Renaming columns: precip}
 colnames(new_precip)
 
-avg_precip <- new_precip %>% 
+precip_rename <- new_precip %>% 
   rename(date = Kentucky, avgprecip = Precipitation)
 
-colnames(avg_precip)
+colnames(precip_rename)
 ```
 
   + The current avgprecip column contains both precipitation values and anomalies separated by a comma.
   + We will split this column and get rid of the anomalies because we won't need them.
   
 ```{r Split columns: precip}
-avg_precip_split <- avg_precip %>% 
+precip_split <- precip_rename %>% 
   separate(avgprecip, c("avgprecip", NA), sep = ",")
 ```
 
-  + Changing the columns format from strings to month names for date, and string to numeric for avgprecip
+  + Convert string to numeric for the avgprecip column
 
-```{r Str to month, string to numeric: precip}
-date_normal_precip <- ymd(paste0(avg_temp$date, "01"))
+```{r String to numeric: precip}
+date_normal_precip <- ymd(paste0(precip_split$date, "01"))
 
-month_avg_precip <- data.frame(month = months(date_normal_precip), avgprecip = as.numeric(avg_precip_split$avgprecip))
+precip_clean <- data.frame(date = date_normal_precip, avgprecip = as.numeric(precip_split$avgprecip))
 ```
 
 3. Cleaning snow
@@ -127,17 +125,17 @@ month_avg_precip <- data.frame(month = months(date_normal_precip), avgprecip = a
 new_snow <- snow[ , -1]
 ```
 ```{r Renaming columns: snow}
-avg_snow <- new_snow %>% 
-  rename(month = Month, avgsnow = Amount)
+snow_rename <- new_snow %>% 
+  rename(date = Month, avgsnow = Amount)
 ```
 ```{r Str to numeric: snow}
-month_avg_snow <- data.frame(month = avg_snow$month, avgsnow = as.numeric(avg_snow$avgsnow))
+snow_clean <- data.frame(date = snow_rename$date, avgsnow = as.numeric(snow_rename$avgsnow))
 ```
 
 ### Putting all three datasets to a single dataframe
 
 ```{r Final weather dataframe}
-weather_clean <- data.frame(month = month_avg_temp$month, temperature = month_avg_temp$avgtemp, precipitation = month_avg_precip$avgprecip, snowfall = month_avg_snow$avgsnow)
+weather_clean <- data.frame(date = temp_clean$date, temperature = temp_clean$avgtemp, precipitation = precip_clean$avgprecip, snowfall = snow_clean$avgsnow)
 ```
 
 - Examine final dataframe

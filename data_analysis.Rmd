@@ -4,3 +4,34 @@ author: "Handerson Coq"
 date: '2022-05-11'
 output: html_document
 ---
+
+### Context
+
+This project is for the Google Analytics Capstone. It is aimed at evaluating the impact of weather patterns on consumer purchase patterns in Kentucky. We will be using retail sales data retrieved from the U.S. Bureau of Labor Statistics (BLS) and weather data from the National Oceanic and Atmospheric Administration (NOAA). 
+
+The purpose of this script is to perform simple data analysis to understand weather impact on retail sales
+
+### Installing required packages
+
+```{r tidyverse}
+install.packages("tidyverse") # for data import and wrangling
+library(tidyverse)
+```
+```{r ggplot2}
+library(ggplot2) # for visualizations
+library(dplyr)
+```
+
+
+### Joining the clean datasets from the data cleaning scripts to work with one dataset
+
+```{r}
+analysis_data <- merge(retail_sales_clean, weather_clean, by = "date")
+analysis_data
+```
+
+
+A.	Exploratory analysis
+
+----
+
